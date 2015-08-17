@@ -18,7 +18,7 @@ public class Server {
 	
 	public static void main(String[] args) throws Exception {
 		
-		logger.info("Start server on port {}", PORT);
+		logger.trace("Start server on port {}", PORT);
 		
         HttpServer server = HttpServer.create(new InetSocketAddress(PORT), 0);
         server.createContext("/index", new FileHandler());
@@ -26,7 +26,7 @@ public class Server {
         server.setExecutor(null); 
         server.start();
         
-        logger.info("Server started");
+        logger.trace("Server started");
 	}
 
 	

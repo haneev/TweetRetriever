@@ -1,2 +1,17 @@
 # TweetRetriever
 by Han van der Veen
+
+## Maven
+Install maven dependencies using `pom.xml`
+
+## Install web dashboard
+`nodejs` and `bower` is required.
+After installation
+Go into `www/` and run `bower install`
+
+## Further installation
+A dataset named `data/not_dataset.json.gz` is required. It contains Tweet that are considered normal tweets. For instance, streaming 1 hour of all Tweets.
+
+## Author
+Han van der Veen
+University of Twente

@@ -18,6 +18,11 @@ import twitter4j.TwitterObjectFactory;
 import twitter4j.TwitterStream;
 import twitter4j.TwitterStreamFactory;
 
+/**
+ * This class calls the Twitter streaming api
+ * @author Han
+ *
+ */
 public class LiveContentGrabber implements Runnable, Stoppable, OutputQueue<JSONObject> {
 	
 	private static final Logger logger = LogManager.getLogger("LiveContentGrabber");
@@ -97,11 +102,11 @@ public class LiveContentGrabber implements Runnable, Stoppable, OutputQueue<JSON
 	}
 	
 	public void run() {
-		logger.info("Start LiveContentGrabber");
+		logger.trace("Start LiveContentGrabber");
 		
 		startStreaming(words);
 		
-		logger.info("End LiveContentGrabber");
+		logger.trace("End LiveContentGrabber");
 	}
 	
 }

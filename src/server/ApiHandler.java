@@ -26,6 +26,11 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 
+/**
+ * Handling API calls
+ * @author Han
+ *
+ */
 public class ApiHandler implements HttpHandler {
 	
 	public interface ApiCall {
@@ -44,7 +49,7 @@ public class ApiHandler implements HttpHandler {
     	String requestedUrl = t.getRequestURI().toString().substring(5);
     	t.getResponseHeaders().set("Content-Type", "application/json");
     	
-    	Server.logger.info("Serving API call {}", requestedUrl);
+    	Server.logger.trace("Serving API call {}", requestedUrl);
     	
     	Map<String, ApiHandler.ApiCall> apis = new HashMap<String, ApiCall>();    	
     	apiEndpoints(apis);
@@ -110,12 +115,9 @@ public class ApiHandler implements HttpHandler {
     	private JSONObject constructStatus(JSONObject result) {
     		result.put("status", App.getApp().getStatus());
     		
-    		if(App.getApp().getStats().get("liveClassifier") == null) {
-    			Server.logger.info("not started yet");
-    		} else {
+    		if(App.getApp().getStats().get("liveClassifier") != null) {
     			
     			result.put("keyword", (String) App.getApp().getStats().get("keyword"));
-    			
 	    		result.put("wordStats", convertListToJSON( ((LiveClassifier) App.getApp().getStats().get("liveClassifier")).getWordStats()) );
 	    		
 	    		result.put("inputTweetsPerSec", ( (PerSecAnalyzer) App.getApp().getStats().get("inputTweets")).getTweetsPerSec() );
@@ -156,7 +158,6 @@ public class ApiHandler implements HttpHandler {
 				
 				result.put("trends", twitterTrends);
 			} catch (TwitterException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 			

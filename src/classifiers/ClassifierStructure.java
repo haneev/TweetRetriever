@@ -5,6 +5,12 @@ import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.SparseInstance;
 
+/**
+ * This structure is required by each classifier
+ * It is simply a text and class attribute
+ * @author Han
+ *
+ */
 public class ClassifierStructure {
 
 	private FastVector structure;

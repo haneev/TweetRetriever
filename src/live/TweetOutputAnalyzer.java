@@ -7,6 +7,11 @@ import java.util.Queue;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.json.JSONObject;
 
+/**
+ * Holds samples of stream
+ * @author Han
+ *
+ */
 public class TweetOutputAnalyzer extends InputOutputQueue<JSONObject> implements Runnable, Stoppable {
 
 	private CircularFifoBuffer buffer;

@@ -8,6 +8,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
+/**
+ * Datasource base class
+ * @author Han
+ *
+ */
 abstract public class DataSource implements Iterator<JSONObject>, Cloneable, Iterable<JSONObject> {
 	abstract public void close();
 	
@@ -40,6 +45,9 @@ abstract public class DataSource implements Iterator<JSONObject>, Cloneable, Ite
         return super.clone();
     }
 	
+	/**
+	 * Rewind the datasource and iterator
+	 */
 	public void rewind() {
 		
 	}

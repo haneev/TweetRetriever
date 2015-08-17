@@ -14,6 +14,13 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.TwitterObjectFactory;
 
+/**
+ * Search for Tweets using Twitter4J
+ * This is resulted in a datasource that can read directly from Twitter
+ * 
+ * @author Han
+ *
+ */
 public class TweetSearchDataSource extends DataSource {
 
 	private String keywords;
@@ -21,8 +28,6 @@ public class TweetSearchDataSource extends DataSource {
 	private Twitter twitter;
 	
 	private int i = 0;
-	
-	private int total_counter = 0;
 	
 	private QueryResult result;
 	
@@ -36,16 +41,11 @@ public class TweetSearchDataSource extends DataSource {
 	
 	public TweetSearchDataSource(String keywords) {
 		this.keywords = keywords;
-		
 		twitter = TwitterFactory.getSingleton();
 	}
 	
 	public String getQuery() {
 		return keywords;
-	}
-	
-	public void init() {
-		
 	}
 	
 	public String toString() {
@@ -99,7 +99,6 @@ public class TweetSearchDataSource extends DataSource {
 		doNext();
 		
 		++i;
-		++total_counter;
 		
 		try {
 			return activeResultSet != null && activeResultSet.size() > i && activeResultSet.get(i) != null;

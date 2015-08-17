@@ -20,6 +20,12 @@ import org.json.JSONObject;
 
 import tools.JsonReader;
 
+/**
+ * Estimate Tweet Count
+ * This function is called Amount in the thesis
+ * 
+ * @author Han
+ */
 public class TweetCount {
 
 	private String keyword;
@@ -29,29 +35,7 @@ public class TweetCount {
 	public TweetCount(String keyword) {
 		this.keyword = keyword;
 		
-		this.dates = new String[] {
-			"2013-06-01=2013-06-03",
-			"2013-07-01=2013-07-03",
-			"2013-08-01=2013-08-03",
-			"2013-09-01=2013-09-03",
-			"2013-10-01=2013-10-03",
-			"2013-11-01=2013-11-03",
-			"2013-12-01=2013-12-03",
-			"2014-01-01=2014-01-03",
-			"2014-02-01=2014-02-03",
-			"2014-03-01=2014-03-03",
-			"2014-04-01=2014-04-03",
-			"2014-05-01=2014-05-03",
-			
-			"2013-06-15=2013-06-17",
-			"2013-07-15=2013-07-17",
-			"2013-08-15=2013-08-17",
-			"2013-09-15=2013-09-17",
-			"2013-10-15=2013-10-17",
-			"2013-11-15=2013-11-17",
-			"2013-12-15=2013-12-17",
-			"2014-01-15=2014-01-17",
-			"2014-02-15=2014-02-17",
+		this.dates = new String[] {			
 			"2014-03-15=2014-03-17",
 		};
 	}
@@ -60,7 +44,7 @@ public class TweetCount {
 		this.dates = dates;
 	}
 	
-	public String readPage(URI uri) {
+	private String readPage(URI uri) {
 		String finalHTML = "";
 		try {
 			
@@ -125,8 +109,6 @@ public class TweetCount {
 		else 
 			density = total_sum / total / 1000;
 		
-		//System.out.println("Start: " + new Date(start_date).toString() + " end: "+new Date(previous_created_at).toString() + " tweets: "+total+" avg sec between: "+ density );
-		
 		return density;
 	}
 	
@@ -141,7 +123,14 @@ public class TweetCount {
 		}
 	}
 	
-	public List<Date> getTweetCountByDate(String beginDate, String endDate) {
+	/**
+	 * Read a page and parse the dates into a list of Posting Tweet dates
+	 * 
+	 * @param beginDate used in since:
+	 * @param endDate used in until:
+	 * @return list of dates of tweets 
+	 */
+	private List<Date> getTweetCountByDate(String beginDate, String endDate) {
 		
 		List<Date> return_dates = new ArrayList<Date>();
 		

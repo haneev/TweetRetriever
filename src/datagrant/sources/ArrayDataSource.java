@@ -5,6 +5,11 @@ import java.util.List;
 
 import org.json.JSONObject;
 
+/**
+ * Converts a List of JSONObjects into a datasource
+ * @author Han
+ *
+ */
 public class ArrayDataSource extends DataSource {
 
 	private List<JSONObject> list;

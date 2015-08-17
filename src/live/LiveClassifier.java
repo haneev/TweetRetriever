@@ -24,6 +24,12 @@ import weka.core.tokenizers.WordTokenizer;
 import weka.filters.Filter;
 import weka.filters.unsupervised.attribute.StringToWordVector;
 
+/**
+ * Classifier that handles Tweets and automatically puts them into their queues
+ * Also automatically trains on new Tweets. This is based on a weka implementation of Bayes
+ * @author Han
+ *
+ */
 public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObject>, OutputQueue<JSONObject> {
 
 	private static final Logger logger = LogManager.getLogger("LiveClassifier");
@@ -42,7 +48,7 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 	
 	private boolean collectNotCases = true;
 	
-	private boolean running = true;
+	private volatile boolean running = true;
 	
 	private boolean doStats = true;
 	
@@ -185,14 +191,14 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 		Instances train = new Instances("train", getStructure().getStructure(), 100000);
 		train.setClassIndex(1);
 		
-		logger.info("Training");
+		logger.trace("Training");
 		
 		int i = 0;
 		for(JSONObject doc : matchSource) {
 			train.add(getStructure().makeInstance("match", doc.optString("text")));
 			
 			if(++i % 5000 == 0)
-				logger.info("progress "+i);
+				logger.trace("progress "+i);
 		}
 		
 		int j = 0;
@@ -200,13 +206,13 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 			train.add(getStructure().makeInstance("not", doc.optString("text")));
 			
 			if(++j % 5000 == 0)
-				logger.info("progress "+i);
+				logger.trace("progress "+i);
 		}
-		logger.info("Done loading instances");
+		logger.trace("Done loading instances");
 		
 		trainClassifier(train);
 		
-		logger.info("Done training");
+		logger.trace("Done training");
 		
 	}
 
@@ -216,7 +222,7 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 	
 	public void run() {
 
-		logger.info("Starting");
+		logger.trace("Starting");
 		int i = 0;
 		JSONObject doc;
 		while(running) {
@@ -246,12 +252,9 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 				
 				// update 
 				if(Data.containsToken(doc.optString("text"), keyword)) {
-					logger.info("Updating classifier with new tweet");
+					logger.trace("Updating classifier with new tweet");
 					this.updateClassifier(struct.makeInstance("match", doc.optString("text")));
 				}
-				
-				if(++i % 100 == 0)
-					logger.info("classified tweet no {} to {}", i, cls);
 				
 				// Show summary on the way
 				if(i % 100 == 0 && doStats) {
@@ -264,7 +267,7 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 						
 						wordStats.put(token, new WordStat(token, match, not ));
 						
-						logger.info("word {} match:{}, not:{}, percentage:{}", token, match, not);
+						logger.info("word {} match:{}, not:{}", token, match, not);
 					}
 					logger.info("END STATS =========== ");
 				}
@@ -342,6 +345,11 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 		
 	}
 	
+	/**
+	 * Internal class that holds stats for each keyword
+	 * @author Han
+	 *
+	 */
 	public class WordStat implements JSONAble {
 		public String keyword;
 		public int match;

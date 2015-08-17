@@ -8,6 +8,10 @@ import org.json.JSONObject;
 
 import tools.TweetWriter;
 
+/**
+ * Writes a stream into a file
+ * @author Han
+ */
 public class LiveWriter implements Runnable, Stoppable, InputQueue<JSONObject> {
 
 	private static final Logger logger = LogManager.getLogger("LiveWriter");
@@ -33,7 +37,7 @@ public class LiveWriter implements Runnable, Stoppable, InputQueue<JSONObject> {
 	
 	public void run() {
 		
-		logger.info("Starting");
+		logger.trace("Starting");
 		
 		int i = 0;
 		
@@ -45,7 +49,7 @@ public class LiveWriter implements Runnable, Stoppable, InputQueue<JSONObject> {
 				writer.write(doc);
 				
 				if(++i % 100 == 0)
-					logger.info("Wrote tweet nr {}", i);
+					logger.trace("Wrote tweet nr {}", i);
 			} else {
 				try {
 					Thread.sleep(100);
@@ -55,6 +59,6 @@ public class LiveWriter implements Runnable, Stoppable, InputQueue<JSONObject> {
 			}
 		}
 		
-		logger.info("Stopped");
+		logger.trace("Stopped");
 	}
 }

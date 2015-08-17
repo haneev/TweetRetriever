@@ -16,6 +16,11 @@ import live.Callback;
 import live.CallbackExecutor;
 import live.LiveMonitor;
 
+/**
+ * TweetRetriever core class
+ * @author Han
+ *
+ */
 public class App {
 
 	public final static String STOPPED = "stopped";
@@ -87,6 +92,8 @@ public class App {
 				finishInitialization();
 			}
 		});
+		
+		retrieverConfig.setFastMode(false);
 		
 		Executor executor = new CallbackExecutor();
 		executor.execute(retrieverConfig);

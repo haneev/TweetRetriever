@@ -24,10 +24,6 @@
 		<md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
 			<md-list>
 				<md-subheader>Menu</md-subheader>
-				<md-list-item ng-click="settings()">
-			    	<md-icon md-svg-icon="settings"></md-icon>
-			    	<p>Settings</p>
-			  	</md-list-item>
 			  	<md-list-item ng-click="resume()">
 			    	<md-icon md-svg-icon="start"></md-icon>
 			    	<p>Resume</p>
@@ -255,7 +251,7 @@
       </md-button>
     </div>
   </md-toolbar>
-  <md-dialog-content>
+  <md-dialog-content class="logScroll">
 	<p ng-repeat="log in data.logs track by $index">{{log}}</p>    
   </md-dialog-content>
   <div class="md-actions" layout="row">

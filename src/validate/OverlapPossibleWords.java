@@ -12,6 +12,14 @@ import org.apache.logging.log4j.Logger;
 
 import datagrant.possibleWords.PossibleWords;
 
+/**
+ * Class that implements PossibleWords 
+ * And uses TweetCount over the past 6 months
+ * 
+ * TODO: Months are static now
+ * 
+ * @author Han
+ */
 public class OverlapPossibleWords implements PossibleWords {
 
 	private static final Logger logger = LogManager.getLogger("OverlapPossibleWords");
@@ -29,19 +37,12 @@ public class OverlapPossibleWords implements PossibleWords {
 		TweetCount c = new TweetCount(query);
 		
 		c.setDates(new String[] {
-			/*"2014-06-01=2013-06-03",
-			"2014-07-01=2013-07-03",
-			"2014-08-01=2013-08-03",
-			"2014-09-01=2013-09-03",
-			"2014-10-01=2013-10-03",
-			"2014-11-01=2013-11-03",
-			"2014-12-01=2013-12-03",*/ 
-			//"2015-01-01=2015-01-03", // only use past 5 months
 			"2015-02-01=2015-02-03",
 			"2015-03-01=2015-03-03",
 			"2015-04-01=2015-04-03",
 			"2015-05-15=2015-05-17",
-			"2015-06-15=2015-06-17"}
+			"2015-06-15=2015-06-17",
+			"2015-07-15=2015-07-17"}
 		);
 		
 		return c.getEstimatedTweetCount();

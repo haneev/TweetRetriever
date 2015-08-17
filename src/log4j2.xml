@@ -17,9 +17,9 @@
   	</Appenders>
   	<Loggers>
     	<Root level="all">
-    		<AppenderRef ref="ApiLogAppender"/>
-      		<AppenderRef ref="Console"/>
-      		<AppenderRef ref="File"/>      		
+    		<AppenderRef ref="ApiLogAppender"/>	
+    		<AppenderRef ref="Console"/>
+      		<AppenderRef ref="File"/>      	
     	</Root>
   	</Loggers>
 </Configuration>

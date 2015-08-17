@@ -2,6 +2,10 @@ package live;
 
 import java.util.concurrent.Executor;
 
+/**
+ * Executor that calls a callback when a thread is finished
+ * @author Han
+ */
 public class CallbackExecutor implements Executor {
 
     public void execute(final Runnable r) {

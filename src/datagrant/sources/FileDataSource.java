@@ -18,6 +18,11 @@ import org.json.JSONObject;
 
 import tools.JSON;
 
+/**
+ * Read tweets from a file into this datasource
+ * @author Han
+ *
+ */
 public class FileDataSource extends DataSource implements Iterator<JSONObject> {
 
 	private String file;
@@ -43,9 +48,7 @@ public class FileDataSource extends DataSource implements Iterator<JSONObject> {
 	}
 	
 	private void init() {
-		try {
-			
-			
+		try {			
 			fileStream = new FileInputStream(new File(file));
 			
 			InputStream stream;
@@ -95,7 +98,6 @@ public class FileDataSource extends DataSource implements Iterator<JSONObject> {
 			} catch (IOException e) {}
 		}
 		try {
-			//System.out.println("Read line "+i+" " + file);
 			return JSON.parse(this.currentLine);
 		} catch(JSONException e) {
 			System.err.println("Error in parsing json string");

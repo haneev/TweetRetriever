@@ -6,6 +6,11 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Monitors all threads and is able to start and stop all threads
+ * @author Han
+ *
+ */
 public class LiveMonitor implements Runnable, Stoppable {
 
 	private static final Logger logger = LogManager.getLogger("LiveContentMonitor");
@@ -83,7 +88,7 @@ public class LiveMonitor implements Runnable, Stoppable {
 	
 	public void run() {
 		
-		logger.info("Started monitor");
+		logger.trace("Started monitor");
 		
 		long maxRunningTime = runningTime*60*1000;
 		
@@ -103,7 +108,7 @@ public class LiveMonitor implements Runnable, Stoppable {
 			}
 		}
 		
-		logger.info("Stopped monitor");
+		logger.trace("Stopped monitor");
 	}
 
 	

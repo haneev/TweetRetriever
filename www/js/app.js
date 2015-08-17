@@ -16,19 +16,22 @@ app.config(function($mdThemingProvider, $mdIconProvider){
     
     $mdThemingProvider.theme('default')
         .primaryPalette('blue')
-        .accentPalette('orange');
+        .accentPalette('blue-grey');
     
     $mdThemingProvider.theme('docs-dark', 'default')
-	    .primaryPalette('yellow')
+	    .primaryPalette('blue-grey')
+	    .accentPalette('blue')
 	    .dark();
     
 });
+
 app.run(function ($rootScope) {
 	$rootScope.running = false;
 	$rootScope.status = 'stopped';
 	$rootScope.settings = {};
-	$rootScope.threshold = 0.8;
+	$rootScope.threshold = 0.8; // threshold for declining a keyword
 	
+	// Do action on receiving a status
 	$rootScope.$on("status", function (event, status) {
 		$rootScope.status = status;
 		
@@ -44,6 +47,8 @@ app.run(function ($rootScope) {
 
 app.controller("BaseController",  function ($scope, $mdUtil, $mdSidenav, $rootScope, ServerCommand, $mdDialog) {
 
+	var logInterval = 2000;
+	
 	$scope.toggleLeft = $mdUtil.debounce(function() {
 		$mdSidenav('left').toggle()
 	}, 300);	
@@ -65,28 +70,31 @@ app.controller("BaseController",  function ($scope, $mdUtil, $mdSidenav, $rootSc
 		$rootScope.running = true;
 		$rootScope.$broadcast('action', 'startOverview');
 	}
-	
-	$scope.test = function () {
-		$rootScope.running = true;
-	};
-	
 
 	$scope.logs = function($event) {
 		$mdDialog.show({
 			scope : $scope,
-			controller : function($scope, $mdDialog, $interval, $http) {
+			controller : function($scope, $mdDialog, $interval, $http, $timeout) {
 
+				function scrollBottom() {
+					var element = document.querySelector(".logScroll");
+					element.scrollTop = element.scrollHeight;
+				}
+				
+				// load logs every 2 second
 				$scope.data = {};
 				var int = $interval(function() {
 					$http.get('/api/log').success(function(data) {
 						$scope.data = data;
+						
+						$timeout(function () {
+							scrollBottom();
+						}, 50);
 					});
-				}, 2000);
+				}, logInterval);
 
 				$scope.close = function() {
-
 					$interval.cancel(int);
-
 					$mdDialog.cancel();
 				}
 			},
@@ -101,10 +109,12 @@ app.controller("BaseController",  function ($scope, $mdUtil, $mdSidenav, $rootSc
 
 app.controller("FormController", function ($scope, $http, $rootScope, ServerCommand, $interval) {
 	
+	var waitInterval = 1500;
+	
+	// wait for end initialization phase
 	function statusPolling() {
 		
-		var int = $interval(function () {
-			
+		var int = $interval(function () {			
 			ServerCommand.status().success(function (data) {
 				if(data.status == 'running') {
 					$scope.$emit("status", 'running');
@@ -112,7 +122,7 @@ app.controller("FormController", function ($scope, $http, $rootScope, ServerComm
 				}
 			});
 			
-		}, 2000);
+		}, waitInterval);
 		
 	}
 	
@@ -120,17 +130,16 @@ app.controller("FormController", function ($scope, $http, $rootScope, ServerComm
 		
 		if(!$scope.start.$invalid) {
 			var data = angular.extend({top:10,training:500}, $scope.data);
-			
 			ServerCommand.start(data).success(function () {
 				$rootScope.settings = data;
 				$scope.$emit("status", 'starting');				
 				statusPolling();
 			});
-			
 		}
 		
 	};
 	
+	// Get trending topics
 	$scope.trending = {};
 	$scope.getTrending = function () {
 		$http.get('/api/twitter').success(function (trends) {
@@ -144,15 +153,14 @@ app.controller("RunningController", function ($scope, $interval, ServerCommand, 
 	
 	$scope.current = {};
 	
+	var dashboardInterval = 1000;
 	var poller;
 	function startPolling() {
-
 		poller = $interval(function (){
 			ServerCommand.status().success(function (data) {
 				$scope.current = data;
 			});
-		}, 2000);
-		
+		}, dashboardInterval);
 	}
 	
 	function stopPolling() {
@@ -160,6 +168,7 @@ app.controller("RunningController", function ($scope, $interval, ServerCommand, 
 			$interval.cancel(poller);
 	}
 	
+	// on receive action, do something
 	$scope.$on('action', function (event, action) {
 		if(action == 'startOverview') {
 			startPolling();
@@ -174,18 +183,26 @@ app.controller("RunningController", function ($scope, $interval, ServerCommand, 
 	
 });
 
-app.filter('unsafe', function($sce) { return $sce.trustAsHtml; });
+app.filter('unsafe', function($sce) { 
+	return $sce.trustAsHtml; 
+});
 
+/*
+ * Open a Tweet and show embed
+ */
 app.factory('Tweet', function ($http, $mdDialog, $q) {
 	
-	return {
-		
+	return {	
 		open : function (event, original_tweet) {
 			var tweet = cloneObject(original_tweet);
 			var url = "https://api.twitter.com/1/statuses/oembed.json?id="+tweet.id_str+"&callback=JSON_CALLBACK";
 			$http.jsonp(url).success(function (data) {
 				$mdDialog.show({
 				      controller: function ($scope, $mdDialog, tweet) {
+				    	  
+				    	  if(twttr)
+				    		  twttr.widgets.load();
+				    	  
 				    	  $scope.tweet = tweet;
 				    	  $scope.close = function () {
 				    		  $mdDialog.cancel();
@@ -200,12 +217,15 @@ app.factory('Tweet', function ($http, $mdDialog, $q) {
 				      clickOutsideToClose:true
 			    })
 			});
-		}
-		
+		}		
 	};
 	
 });
 
+/*
+ * Command a server
+ * Start/stop/status
+ */
 app.factory('ServerCommand', function ($http) {
 	
 	var command = function (cmd) {

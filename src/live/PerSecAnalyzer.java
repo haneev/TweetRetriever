@@ -5,6 +5,11 @@ import java.util.Queue;
 import org.apache.commons.collections.buffer.CircularFifoBuffer;
 import org.json.JSONObject;
 
+/**
+ * Analyzes a stream and returns the amount of tweets per second
+ * @author Han
+ *
+ */
 public class PerSecAnalyzer extends InputOutputQueue<JSONObject> implements Stoppable, Runnable {
 
 	private CircularFifoBuffer timings;

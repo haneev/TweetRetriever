@@ -17,6 +17,12 @@ import datagrant.sources.DataSource;
 import datagrant.sources.FileDataSource;
 import datagrant.sources.TweetSearchDataSource;
 
+/**
+ * Additional keywords are found by this class
+ * Automatically filters the list
+ * @author Han
+ *
+ */
 public class LiveAdditionalWords {
 	
 	private static final Logger logger = LogManager.getLogger("LiveAdditionalWords");
@@ -24,7 +30,7 @@ public class LiveAdditionalWords {
 	private List<PossibleWords> parsers;
 	
 	private static List<String> stopwords;
-	
+
 	public LiveAdditionalWords() {
 		this.parsers = new ArrayList<PossibleWords>();
 		
@@ -102,12 +108,12 @@ public class LiveAdditionalWords {
 		
 		for(PossibleWords p : this.parsers) {
 			List<String> beforeFilter = p.getPossibleWords(wordsPerParser*3);
-			logger.info("Parser {} before filter {}", p.getClass().getName(), beforeFilter);
+			logger.trace("Parser {} before filter {}", p.getClass().getName(), beforeFilter);
 			List<String> possible = filterWords(beforeFilter);
-			logger.info("Parser {} returns {}", p.getClass().getName(), possible);
+			logger.trace("Parser {} returns {}", p.getClass().getName(), possible);
 			
 			List<String> perParser = possible.size() < wordsPerParser ? possible : possible.subList(0, wordsPerParser);
-			logger.info("Add to parser {}", perParser);
+			logger.trace("Add to parser {}", perParser);
 			words.addAll(perParser);
 		}
 		

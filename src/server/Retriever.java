@@ -21,7 +21,7 @@ import validate.OverlapPossibleWords;
 
 public class Retriever implements Callback, Runnable {
 
-	public static final String NORMAL_FILE = "../data/tweets_non_related_150615.json.gz";
+	public static final String NORMAL_FILE = "data/not_dataset.json.gz";
 	
 	public static final String OUTPUT_DIR = "data/";
 	
@@ -35,6 +35,7 @@ public class Retriever implements Callback, Runnable {
 	private int top, trainingTweets;
 	
 	private LiveMonitor monitor;
+	
 	private Callback callback;
 	
 	public Retriever(LiveMonitor monitor, String keyword, int top, int trainingTweets, Callback callback2) {
@@ -43,6 +44,16 @@ public class Retriever implements Callback, Runnable {
 		this.trainingTweets = trainingTweets;
 		this.monitor = monitor;
 		this.callback = callback2;
+	}
+
+	/** 
+	 * Enable fast mode, when set to false Overlap is used.
+	 * Otherwise ProbFact is used
+	 * 
+	 * @param fast
+	 */
+	public void setFastMode(boolean fast) {
+		this.initializeFast = fast;
 	}
 	
 	private List<String> getWords(DataSource mf, DataSource nf) {
@@ -77,7 +88,7 @@ public class Retriever implements Callback, Runnable {
 	    DataSource nf = new FileDataSource(NORMAL_FILE);
 	    DataSource mf = new TweetSearchDataSource(keyword);
 	    
-	    logger.info("Get normal and matching dataset");
+	    logger.trace("Get normal and matching dataset");
 	    
 	    DataSource matchingAndRelevantTweets = mf.toArray(trainingTweets);
 	    DataSource notRelevantTweets = nf.toArray(trainingTweets * 2);
@@ -99,9 +110,8 @@ public class Retriever implements Callback, Runnable {
 	    liveClassifier.trainBySource(matchingAndRelevantTweets, notRelevantTweets);
 	    monitor.addThread(liveClassifier);
 	    App.getApp().getStats().put("liveClassifier", liveClassifier);
-	
-	    
-	    logger.info("Set outputs");
+		    
+	    logger.trace("Set outputs");
 	    
 	    // NOT QUEUE Analyzer -> Buffer -> Writer
 	    
@@ -135,7 +145,7 @@ public class Retriever implements Callback, Runnable {
 	    LiveWriter matchOutputWriter = new LiveWriter(matchTweetOutputAnalyzer.getOutputQueue(), getOutputFiles("match"));
 	    monitor.addThread(matchOutputWriter);
 	    
-	    logger.info("Thread ended");
+	    logger.trace("Thread ended");
 	}
 	
 	public void callback() {

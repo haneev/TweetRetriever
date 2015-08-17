@@ -8,6 +8,11 @@ import java.io.OutputStream;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 
+/**
+ * Handles opening files for showing the webinterface
+ * @author Han
+ *
+ */
 public class FileHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange t) throws IOException {
@@ -19,7 +24,7 @@ public class FileHandler implements HttpHandler {
     	
     	File requestedFile = new File(Server.WEBROOT + requestedUrl);
     	
-    	Server.logger.info("Serving {}", requestedFile);
+    	Server.logger.trace("Serving {}", requestedFile);
     	
     	if(requestedFile.exists()) {        		
     		

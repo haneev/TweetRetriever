@@ -5,6 +5,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.json.JSONObject;
 
+/**
+ * Create a stream of dummy Tweets
+ * @author Han
+ * 
+ * TODO: Correctly handling threads and intterupts
+ */
 public class DummyTweetRateGenerator implements Runnable, Stoppable, OutputQueue<JSONObject> {
 
 	private Queue<JSONObject> out;
@@ -36,7 +42,6 @@ public class DummyTweetRateGenerator implements Runnable, Stoppable, OutputQueue
 			try {
 				Thread.sleep(delay);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
