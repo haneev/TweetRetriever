@@ -1,0 +1,272 @@
+<!doctype html>
+<html ng-app="app">
+    <head>
+        <meta charset="utf-8">
+
+        <base href="/index/">
+	
+		<!-- Angular Material Dependencies -->
+		<script src="bower_components/angular/angular.min.js"></script>
+		<script src="bower_components/angular-animate/angular-animate.min.js"></script>
+		<script src="bower_components/angular-aria/angular-aria.min.js"></script>
+		<script src="bower_components/angular-material/angular-material.min.js"></script>
+		<script src="bower_components/angular-messages/angular-messages.min.js"></script>
+
+		<link rel="stylesheet" href="bower_components/angular-material/angular-material.min.css">
+		
+		<link rel="stylesheet" href="css/app.css">
+		
+		<script src="js/app.js"></script>
+		
+	</head>
+	<body ng-controller="BaseController" layout="row">
+	
+		<md-sidenav class="md-sidenav-left md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-md')">
+			<md-list>
+				<md-subheader>Menu</md-subheader>
+				<md-list-item ng-click="settings()">
+			    	<md-icon md-svg-icon="settings"></md-icon>
+			    	<p>Settings</p>
+			  	</md-list-item>
+			  	<md-list-item ng-click="resume()">
+			    	<md-icon md-svg-icon="start"></md-icon>
+			    	<p>Resume</p>
+			  	</md-list-item>		
+			  	<md-list-item ng-click="reset()" ng-show=" status == 'stopped' ">
+			    	<md-icon md-svg-icon="reset"></md-icon>
+			    	<p>Reset</p>
+			  	</md-list-item>
+			  	<md-subheader ng-show=" running ">Control</md-subheader>
+			  	<md-list-item ng-click="stop()" ng-show=" running ">
+			    	<md-icon md-svg-icon="stop"></md-icon>
+			    	<p>Stop</p>
+			  	</md-list-item>		
+			  				 
+			</md-list>
+		</md-sidenav>
+		
+		<div flex>
+			<md-toolbar layout="row">
+				<div class="md-toolbar-tools">
+					<md-button aria-label="Toggle Menu" ng-click="toggleLeft()" class="md-primary" hide-gt-md><md-icon md-svg-icon="menu"></md-icon></md-button>
+					
+					<h2 flex>TweetRetriever</h2>
+					
+					<md-button aria-label="Show logs" ng-click="logs($event)">Show logs</md-button>
+				</div>
+			</md-toolbar>
+		 	
+		 	<div ng-show="!running" ng-controller="FormController" layout="column" layout-align="center center">
+		 		
+		 		<form ng-disabled=" status == 'starting' " md-theme="docs-dark" class="startForm" name="start"  layout-padding>
+		 			<md-toolbar class="md-toolbar-tools" ><h2>Start</h2></md-toolbar>
+		 			
+					<md-content layout-padding>
+						
+						<md-input-container flex> 
+							<label>Keyword</label> 
+							<input type="text" ng-model="data.keyword" name="keyword" required>
+							<div ng-messages="start.keyword.$error" role="alert">
+								<div ng-message="required">A keyword is required</div>
+							</div>
+						</md-input-container>
+						
+						<div layout="row" layout-align="center center">
+							<md-button class="md-primary md-raised md-hue-1" ng-click="advanced = !advanced">Advanced options</md-button>
+						</div>
+						
+						<div layout="row" ng-show="advanced">
+							<md-input-container flex> 
+								<label>Number of additional keywords</label> 
+								<input value="10" type="number" min=0 max=20 step=1 ng-model="data.top" name="top">
+								<div ng-messages="start.top.$error" role="alert">
+									<div ng-message="required">A number is required</div>
+									<div ng-message="min">At least 0 keyword is required</div>
+									<div ng-message="max">Up to 20 keywords are supported</div>
+								</div>
+							</md-input-container>
+							
+							<md-input-container flex> 
+								<label>Number of training Tweets</label> 
+								<input value="2500" type="number" min=500 max=10000 step=100 ng-model="data.training" name="training_tweets">
+								<div ng-messages="start.training_tweets.$error" role="alert">
+									<div ng-message="required">A number is required</div>
+									<div ng-message="min">At least 500 training Tweets are required</div>
+									<div ng-message="max">At max 10000 Tweets can be used for training</div>
+								</div>
+							</md-input-container>
+						</div>
+						
+						<md-input-container flex>
+							<md-button class="md-raised md-accent" ng-click="startApp()">Start</md-button>
+						</md-input-container>
+						
+						
+						
+					</md-content>
+				</form>
+				
+				<div ng-show="status == 'starting'">
+					<md-progress-linear md-mode="indeterminate"></md-progress-linear>
+					<p>Initializing ... </p>
+				</div>
+				
+				<div class="trending">
+					<md-button ng-click="getTrending()" class="md-primary" ng-show="!trending.trends">Get trending topics</md-button>
+					<p><span ng-repeat="trend in trending.trends"> {{trend}} </span></p>
+				</div>
+		 		
+		 	</div>
+		 	
+		 	<div ng-show="running" ng-controller="RunningController">
+			 	<md-content layout="column">
+			 					 		
+			 		<div layout="row" layout-align="space-around start">
+			 			
+			 			<md-content class="block accent single small" flex>
+			 				<h2>Keyword</h2>
+			 				<p>{{current.keyword}}</p>
+			 			</md-content>
+			 			
+			 			<md-content class="block single" ng-class="{success: status == 'running', fail: status == 'stopped', accent : status == 'starting'}" flex>
+			 				<h2>Status</h2>
+			 				<p>{{status}}</p>
+			 			</md-content>
+			 			
+			 			<md-content class="block accent single" flex>
+			 				<h2>Tweets per second</h2>
+			 				<p>{{current.inputTweetsPerSec|number:2}}/s</p>
+			 			</md-content>
+						
+						<md-content class="block fail single" flex>
+							<h2>Missing Tweets</h2>
+			 				<p>{{current.missingTweets|number:0}}</p>
+			 			</md-content>			 		
+			 			
+			 		</div>
+			 		
+			 		<div layout="row" layout-align="space-around start">
+			 			
+			 			<div class="block accent2" flex>
+			 				<h2>Dataset</h2>
+			 				<table>
+			 					<tr>
+			 						<th></th>
+			 						<th>Tweets per sec</th>
+			 						<th>Tweets</th>
+			 					</tr>
+			 					<tr>
+			 						<td>Relevant</td>
+			 						<td>{{current.matchQueueTweetsPerSec|number:2}}/s</td>
+			 						<td>{{current.matchQueueTweetsCount}}</td>
+			 					</tr>
+			 					<tr>
+			 						<td>Not Relevant</td>
+			 						<td>{{current.notQueueTweetsPerSec|number:2}}/s</td>
+			 						<td>{{current.notQueueTweetsCount}}</td>
+			 					</tr>
+			 				</table>
+			 				
+			 			</div>
+			 			
+			 			<div class="block accent2" flex>
+			 				<h2>Additional keywords</h2>
+			 				<table>
+			 					<tr>
+			 						<th>Keyword</th>
+			 						<th>Relevant</th>
+			 						<th>Not relevant</th>
+			 					</tr>
+			 					
+			 					<tr ng-repeat="word in current.wordStats" ng-class="{fail: (word.not / word.match) > threshold, success : (word.not / word.match) <= threshold}">
+			 						<td>{{word.keyword}}</td>
+			 						<td>{{word.match}}</td>
+			 						<td>{{word.not}}</td>
+			 					</tr>
+			 					
+			 				</table>
+			 			</div>
+			 			
+			 		</div>
+			 		
+			 		<div layout="row" layout-align="space-around start">
+			 			
+			 			<div class="block tweets" flex>
+			 				<h2>Relevant Tweets</h2>
+			 				<div class="tweet" ng-repeat="tweet in current.matchSample">
+			 					<a href="#" ng-click="openTweet($event, tweet)">
+			 						{{tweet.user.screen_name}}: {{tweet.text}}
+			 					</a>
+			 				</div>
+			 				
+			 			</div>
+			 			
+			 			<div class="block tweets" flex>
+			 				<h2>Not Relevant Tweets</h2>
+			 				<div class="tweet" ng-repeat="tweet in current.notSample">
+			 					<a href="#" ng-click="openTweet($event, tweet)">
+			 						{{tweet.user.screen_name}}: {{tweet.text}}
+			 					</a>
+			 				</div>
+			 			</div>
+			 			
+			 		</div>
+			 		
+			 	</md-content>
+		 	</div>
+		 	
+	
+		</div>
+	
+		<script type="text/ng-template" id="tweetdialog.html">
+
+<md-dialog aria-label="Tweet">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Tweet</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="close()">
+        <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content>
+    <div ng-bind-html="tweet.html | unsafe">
+    </div>
+  </md-dialog-content>
+  <div class="md-actions" layout="row">
+    <md-button ng-click="close()" >
+      Cancel
+    </md-button>
+  </div>
+</md-dialog>			
+
+		</script>
+		
+		<script type="text/ng-template" id="logs.html">
+
+<md-dialog aria-label="Logs">
+  <md-toolbar>
+    <div class="md-toolbar-tools">
+      <h2>Logs</h2>
+      <span flex></span>
+      <md-button class="md-icon-button" ng-click="close()">
+        <md-icon md-svg-icon="close" aria-label="Close dialog"></md-icon>
+      </md-button>
+    </div>
+  </md-toolbar>
+  <md-dialog-content>
+	<p ng-repeat="log in data.logs track by $index">{{log}}</p>    
+  </md-dialog-content>
+  <div class="md-actions" layout="row">
+    <md-button ng-click="close()" >
+      Cancel
+    </md-button>
+  </div>
+</md-dialog>			
+
+		</script>
+		
+		<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+	</body>
+</html>

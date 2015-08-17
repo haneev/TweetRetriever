@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" packages="appender">
+	<Properties>
+    	<Property name="filename">target/test.log</Property>
+  	</Properties>
+  	<Appenders>
+  		<ApiLogAppender name="ApiLogAppender" format="full">
+  			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+  		</ApiLogAppender>
+  		
+    	<Console name="Console" target="SYSTEM_OUT">
+      		<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+    	</Console>
+    
+    	<File name="File" fileName="${filename}" immediateFlush="true" append="true">
+    	</File>
+  	</Appenders>
+  	<Loggers>
+    	<Root level="all">
+    		<AppenderRef ref="ApiLogAppender"/>
+      		<AppenderRef ref="Console"/>
+      		<AppenderRef ref="File"/>      		
+    	</Root>
+  	</Loggers>
+</Configuration>

@@ -1,0 +1,20 @@
+{
+  "name": "TweetRetriever",
+  "version": "0.1.0",
+  "description": "Automatic tool for retrieving all relevant tweets on a certain topic",
+  "authors": [
+    "Han van der Veen"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-material": "~0.10.0",
+    "angular-messages": "~1.4.3"
+  }
+}

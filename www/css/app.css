@@ -1,0 +1,84 @@
+body {
+	font-size: 11pt;
+}
+
+h1 {
+	margin: 0;
+}
+
+.block {
+	padding: 10px;
+	margin: 10px;
+	
+	background: #2196F3;
+}
+
+.block.single {
+	height: 100px;	
+	text-align: center;
+}
+
+.block h2 {
+	height: 20px;
+	font-size: 11pt;
+	padding: 3px 0;
+	text-align: center;
+	margin: 0;
+}
+
+.block.single p {
+	height: 40px;
+	line-height: 40px;
+	font-size: 2em;
+	margin: 0;
+}
+.block.single.small p {
+	font-size: 1em;
+	margin: 0;
+}
+
+.block table {
+	width: 100%;
+}
+.block table tr td {
+	text-align: center;
+	padding: 5px;
+}
+.block table tr td:first-child {
+	text-align: left;
+}
+
+
+.success {
+	background-color: #8BC34A;
+}
+.fail {
+	background-color: #F44336;
+	color: #fff;
+}
+.warn {
+	background-color: #FF9800;
+}
+.accent {
+	background-color: #0D47A1;
+	color: #fff;
+}
+.accent2 {
+	background-color: #607D8B;
+	color: #fff;
+}
+
+.startForm {
+	margin: 10px;
+	min-width: 500px;
+}
+
+.tweets .tweet {
+	padding: 5px;
+	border-bottom: 1px solid #ccc;
+}
+
+.tweets .tweet a {
+	color: #fff;
+	text-decoration: none;
+}

@@ -1,0 +1,6 @@
+.settings
+.project
+.classpath
+bin/*
+target/*
+www/bower_components/*
