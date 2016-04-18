@@ -6,7 +6,7 @@ import classifiers.features.LatLonLocationFeature;
 
 public class TweetLearnerParser extends TweetParser {
 
-	private LatLonLocationFeature latlon;
+	protected LatLonLocationFeature latlon;
 	
 	public TweetLearnerParser(BayesClassifier classifier, LatLonLocationFeature latlon) {
 		super(classifier);

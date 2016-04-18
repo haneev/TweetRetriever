@@ -1,11 +1,6 @@
 package datagrant.parsers;
 
-import java.io.BufferedWriter;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,43 +8,39 @@ import java.util.Map;
 import classifiers.BayesClass;
 import classifiers.BayesClassifier;
 import classifiers.BayesDocument;
+import tools.TweetWriter;
 
 public class TweetCountryDividerParser extends TweetParser {
 
-	private Map<String, BufferedWriter> streams;
+	private Map<String, TweetWriter> streams;
 	
-	private String directory = "../data/movember_countries/"; 
+	public String directory = "../data/movember_countries/";
 	
-	private long count = 0;
+	public int counter = 0;
 	
 	public TweetCountryDividerParser(BayesClassifier classifier) {
 		super(classifier);
 		
-		streams = new HashMap<String, BufferedWriter>();
+		streams = new HashMap<String, TweetWriter>();
 	}
 	
 	private String getFilename(String country) {
-		return directory+"country_"+country+".json";
+		return directory+"country_"+country+".json.gz";
 	}
 	
-	private BufferedWriter getStream(String country) {
+	protected TweetWriter getStream(String country) {
 		
 		if(streams.containsKey(country)) {
 			return streams.get(country);
 		}
+	
+		String file = getFilename(country);
+		System.out.println("Write "+country+" to "+file);
+		TweetWriter writer = new TweetWriter(file);
 		
-		try {
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(getFilename(country)), "UTF-8"));
-			
-			streams.put(country, writer);
-			
-			return writer;
-			
-		} catch (UnsupportedEncodingException | FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		streams.put(country, writer);
 		
-		return null;
+		return writer;
 	}
 	
 	@Override
@@ -57,29 +48,28 @@ public class TweetCountryDividerParser extends TweetParser {
 		List<Map.Entry<BayesClass, Double>> results = classifier.match(doc);		
 	
 		String country = results.get(0).getKey().getName();
+
+		TweetWriter stream = getStream(country);
 		
-		count++;
+		counter++;
+		
+		if (counter % 10000 == 0) {
+			String now = (new Date()).toString();
+			System.out.println(now + " Progress .... "+counter);
+		}
 		
 		try {
-			BufferedWriter stream = getStream(country);
-			stream.write(doc.getJson().toString()+"\n");
-			
-			if(count % 500 == 0)
-				stream.flush();
-			
-		} catch (IOException e) {
+			stream.write(doc.getJson());
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	
 	}
 	
 	@Override
 	public void end() {
-		for(BufferedWriter w : streams.values()) {
-			try {
-				w.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+		for(TweetWriter w : streams.values()) {
+			w.close();
 		}
 	}
 

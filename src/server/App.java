@@ -30,7 +30,7 @@ public class App {
 	
 	public static final Logger logger = LogManager.getLogger("App");
 	
-	private static final long MAX_DURATION = 60;
+	private static final long MAX_DURATION = 120;
 	
 	private static App app;
 	

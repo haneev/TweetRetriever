@@ -6,6 +6,7 @@ import tools.Cache;
 import tools.Config;
 import tools.CountryCode;
 import tools.GoogleGeocode;
+import tweet.TweetDocument;
 import classifiers.BayesDocument;
 import classifiers.BayesFeature;
 
@@ -13,14 +14,18 @@ public class GeoLocationFeature extends BayesFeature {
 	
 	private Cache cacheLayer;
 	
+	protected GoogleGeocode coder;
+	
 	public GeoLocationFeature(Cache cacheLayer) {
 		super("geo_location");
 		this.cacheLayer = cacheLayer;
+		this.coder = new GoogleGeocode(Config.getInstance().get("googlekey"));
 	}
 	
 	public GeoLocationFeature(String name, Cache cacheLayer) {
 		super(name);
 		this.cacheLayer = cacheLayer;
+		this.coder = new GoogleGeocode(Config.getInstance().get("googlekey"));
 	}
 
 	public String getCountry(String location) throws Exception {
@@ -37,7 +42,6 @@ public class GeoLocationFeature extends BayesFeature {
 		if(result != null)
 			return CountryCode.getCountry(result);
 		
-		GoogleGeocode coder = new GoogleGeocode(Config.getInstance().get("googlekey"));
 		String country = coder.read(location);
 		
 		this.cacheLayer.put(cacheKey, country);
@@ -51,16 +55,26 @@ public class GeoLocationFeature extends BayesFeature {
 	
 	@Override
 	public String getValue(BayesDocument doc) {
-		String location = doc.getJson().getJSONObject("user").optString("location", null);		
 		
-		location = filterLocation(location);
-		
-		try {
-			return getCountry(location);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
+		String location = null;
+		if (doc instanceof TweetDocument) {
+			location = ((TweetDocument) doc).getTweet().getUserLocation();
+		} else {
+			location = doc.getJson().getJSONObject("user").optString("location", null);
 		}
+		
+		if (location != null) {
+			location = filterLocation(location);
+			
+			try {
+				return getCountry(location);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return null;
+		
 	}	
 	
 }

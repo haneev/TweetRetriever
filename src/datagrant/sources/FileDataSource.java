@@ -61,6 +61,8 @@ public class FileDataSource extends DataSource implements Iterator<JSONObject> {
 			reader = new InputStreamReader(stream, "UTF-8");
 			read = new BufferedReader(reader);
 			
+			this.currentLine = read.readLine();
+			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch(UnsupportedEncodingException e) {
@@ -81,28 +83,26 @@ public class FileDataSource extends DataSource implements Iterator<JSONObject> {
 	}
 
 	public boolean hasNext() {
-		try {
-			this.currentLine = read.readLine();
-			
-			return this.currentLine != null;
-		} catch (IOException e) {
-			return false;
-		}
+		return this.currentLine != null;
 	}
 
 	public JSONObject next() {
 		
-		if(this.currentLine == null) {
-			try {
-				this.currentLine = read.readLine();
-			} catch (IOException e) {}
-		}
+		JSONObject returnObject = null;
+		
 		try {
-			return JSON.parse(this.currentLine);
-		} catch(JSONException e) {
-			System.err.println("Error in parsing json string");
-			return null;
+			if (!this.currentLine.isEmpty()) {
+				returnObject = JSON.parse(this.currentLine);
+			}
+			
+			this.currentLine = read.readLine();
+		} catch (JSONException e) {
+			
+		} catch (IOException e) {
+			
 		}
+		
+		return returnObject;
 	}
 
 	public void remove() {

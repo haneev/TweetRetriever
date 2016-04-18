@@ -15,6 +15,8 @@ public class TweetWriter {
 	
 	private BufferedWriter writer;
 	
+	private int counter = 0;
+	
 	public TweetWriter(String file) {
 		this.file = file;
 		
@@ -36,7 +38,12 @@ public class TweetWriter {
 	public void write(JSONObject json) {
 		if(writer != null) {
 			try {
+				counter++;
 				writer.write(json.toString()+"\n");
+				
+				if (counter % 500 == 0) {
+					writer.flush();
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

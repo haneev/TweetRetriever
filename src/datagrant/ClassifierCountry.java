@@ -1,38 +1,33 @@
 package datagrant;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
+import tools.Cache;
 import tools.Config;
-import tools.CountryCode;
 import tools.DatabaseCache;
-import tools.JSON;
+import tweet.DatagrantTweet;
+import tweet.Tweet;
+import tweet.TweetDocument;
 import classifiers.*;
 import classifiers.features.*;
 import datagrant.parsers.TweetLearnerParser;
 import datagrant.parsers.TweetMatcherParser;
 import datagrant.parsers.TweetParser;
 import datagrant.sources.DataSource;
+import datagrant.sources.FileDataSource;
 
 public class ClassifierCountry {
 
 	private static Map<String, Integer> stats = new HashMap<String, Integer>();
 	
 	protected BayesClassifier classifier;
-	protected DatabaseCache cache;
+	protected Cache cache;
 	
 	protected LatLonLocationFeature latlon;
 	
@@ -78,6 +73,10 @@ public class ClassifierCountry {
 		return this.classifier;
 	}
 	
+	public TweetDocument getTweetDocument(JSONObject json) {
+		return new TweetDocument(json.has("actor") ? new DatagrantTweet(json) : new Tweet(json));		
+	}
+	
 	public void read(DataSource source, int offset, int length, TweetParser parser) {
 		
 		parser.init();
@@ -92,7 +91,16 @@ public class ClassifierCountry {
 			if(i > (offset + length)) 
 				break;
 			
-			parser.parse(new BayesDocument(source.next()));
+			JSONObject doc = source.next();
+			try {
+				if (doc != null) {
+					parser.parse(this.getTweetDocument(doc));
+				}
+			} catch(Exception e) {
+				e.printStackTrace();
+				System.out.println(doc.toString());
+				throw e;
+			}
 			
 			i++;
 		}
@@ -103,58 +111,7 @@ public class ClassifierCountry {
 	}
 	
 	public void read(String jsonFile, int offset, int length, TweetParser parser) {
-		try {
-			
-			parser.init();
-			
-			FileInputStream fileStream = new FileInputStream(new File(jsonFile));
-			InputStreamReader reader = new InputStreamReader(fileStream, "UTF-8");
-			
-			BufferedReader read = new BufferedReader(reader);
-			
-			String line;
-			
-			try {
-				int i = 0;
-				while((line = read.readLine()) != null) {
-					
-					i++;
-					
-					if(i < offset) 
-						continue;
-					
-					if(i > (offset + length)) {
-						break;
-					}
-					
-					try {
-						JSONObject json = JSON.parse(line);
-						parser.parse(new BayesDocument(json));
-					} catch(JSONException e) {
-						System.out.println("JSON error skipping document");
-					}
-					
-					if(length > 100000 && i % 100000 == 0) {
-						System.out.println("Progress " + i);
-					}
-					
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-			read.close();
-			fileStream.close();
-			reader.close();
-			
-			parser.end();
-		
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-		
+		read(new FileDataSource(jsonFile), offset, length, parser);
 	}
 	
 	public void train(int offset, int length) {

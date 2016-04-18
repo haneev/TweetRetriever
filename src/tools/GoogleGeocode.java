@@ -11,7 +11,7 @@ import datagrant.ClassifierCountry;
 
 public class GoogleGeocode {
 
-	private String key;
+	protected String key;
 	
 	public GoogleGeocode(String key) {
 		this.key = key;

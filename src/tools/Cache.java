@@ -8,4 +8,8 @@ abstract public class Cache {
 	
 	abstract public String get(String key);
 	
+	public void close() {
+		
+	}
+	
 }

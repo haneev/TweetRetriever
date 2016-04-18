@@ -33,6 +33,7 @@ public class LiveWriter implements Runnable, Stoppable, InputQueue<JSONObject> {
 	
 	public void stop() {
 		running = false;
+		writer.close();
 	}
 	
 	public void run() {

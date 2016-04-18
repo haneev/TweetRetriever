@@ -11,8 +11,11 @@ import java.util.Map;
 
 public class BayesClassifier {
 
-	// Minimal number of occurrences needed for a word or value of a feature
-	private int min_amount_of_occurrences = 5;
+	// Minimal number of occurrences needed for a word or value of a feature (e.g. wordfeature)
+	private int min_amount_of_occurrences = 0;
+	
+	// Minimal number of count that a feature value should have
+	private int min_amount_of_feature_counts = 0;
 	
 	// list of active classes
 	private Map<String, BayesClass> classes;
@@ -49,6 +52,10 @@ public class BayesClassifier {
 	
 	public void setThreshold(int threshold) {
 		this.min_amount_of_occurrences = threshold;
+	}
+	
+	public void setFeatureCountThreshold(int threshold) {
+		this.min_amount_of_feature_counts = threshold;
 	}
 	
 	public void addFeature(BayesFeature feature) {
@@ -142,15 +149,15 @@ public class BayesClassifier {
 	public void trainClassifier() {
 		long totalDocuments = getDocumentCount();
 		
+		this.cleanFeatures();
+		
 		for(BayesClass cls : classes.values()) {
 			cls.train(totalDocuments);
 		}
 		
-		this.cleanFeatures();
-		
 		for(BayesFeature feature : feature_counts.keySet()) {
 			this.trainFeature(feature);
-			this.trainFeatureItself(feature);
+			//this.trainFeatureItself(feature);
 		}
 
 	}
@@ -168,6 +175,37 @@ public class BayesClassifier {
 		for(BayesFeature feature : features_to_be_ignored) {
 			//System.out.println("Features to be removed = " + feature.getClass().getName());
 			feature_counts.remove(feature);
+		}
+		
+		this.cleanFeatureValues();
+		
+	}
+	
+	private void cleanFeatureValues() {
+		// clean feature values
+		for(Map.Entry<BayesFeature,Map<String,Map<BayesClass,Long>>> entry : feature_counts.entrySet()) {
+			List<String> values_to_be_removed = new ArrayList<String>();
+			
+			if (entry.getKey().getIsRemovable()) {
+				for(Map.Entry<String, Map<BayesClass, Long>> value : entry.getValue().entrySet()) {
+					
+					// This is the count of a feature value, for instance location "At the deathstar"
+					long total = 0;
+					for (Long count : value.getValue().values()) {
+						total += count;
+					}
+
+					if (total < min_amount_of_feature_counts) {
+						values_to_be_removed.add(value.getKey());
+					}
+				}
+				
+				// remove all words in this feature
+				for(String word : values_to_be_removed) {
+					feature_counts.get(entry.getKey()).remove(word);
+				}
+			}
+			
 		}
 	}
 	
@@ -290,14 +328,22 @@ public class BayesClassifier {
 			if(feature instanceof BayesMultiFeature) {
 				
 				for(BayesFeature feat : ((BayesMultiFeature) feature).getMultiValue(doc)) {
-					score += getPrior(feat, feat.getValue(doc), bayesClass);
+					score += getPrior(feat, getValueFromFeature(feature, doc), bayesClass);
 				}
 				
 			} else 
-				score += getPrior(feature, feature.getValue(doc), bayesClass);
+				score += getPrior(feature, getValueFromFeature(feature, doc), bayesClass);
 		}
 		
 		return score;
+	}
+	
+	private String getValueFromFeature(BayesFeature feature, BayesDocument doc) {
+		try {
+			return feature.getValue(doc);
+		} catch(Exception e) {
+			return null;
+		}
 	}
 	
 	public List<Map.Entry<BayesClass, Double>> match(BayesDocument doc) {

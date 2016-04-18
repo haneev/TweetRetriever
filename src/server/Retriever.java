@@ -26,6 +26,8 @@ public class Retriever implements Callback, Runnable {
 	public static final String OUTPUT_DIR = "data/";
 	
 	public static final long MAX_DURATION = 3600;
+	
+	public static final int MAX_WORDS_FOR_OVERLAP = 50;
 
 	public static final Logger logger = LogManager.getLogger("TweetRetrieverServer");
 	
@@ -67,7 +69,7 @@ public class Retriever implements Callback, Runnable {
 		if(initializeFast) {
 			w.addParser(prior);
 		} else {
-			List<String> wordsToRankSecondary = LiveAdditionalWords.filterWords(prior.getPossibleWords(80));
+			List<String> wordsToRankSecondary = LiveAdditionalWords.filterWords(prior.getPossibleWords(MAX_WORDS_FOR_OVERLAP));
 
 			logger.info("Starting list for overlap {}", wordsToRankSecondary);
 			

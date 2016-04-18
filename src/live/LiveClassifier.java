@@ -257,9 +257,9 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 				}
 				
 				// Show summary on the way
-				if(i % 100 == 0 && doStats) {
-					logger.info("STATS =========== ");
-					logger.info("Total Count {}", tweetCounter);
+				if(i++ % 100 == 0 && doStats) {
+					logger.trace("STATS =========== ");
+					logger.trace("Total Count {}", tweetCounter);
 					for(String token : possible_words) {
 						
 						int not = stats_not.containsKey(token) ? stats_not.get(token) : 0;
@@ -267,9 +267,9 @@ public class LiveClassifier implements Runnable, Stoppable, InputQueue<JSONObjec
 						
 						wordStats.put(token, new WordStat(token, match, not ));
 						
-						logger.info("word {} match:{}, not:{}", token, match, not);
+						logger.trace("word {} match:{}, not:{}", token, match, not);
 					}
-					logger.info("END STATS =========== ");
+					logger.trace("END STATS =========== ");
 				}
 				
 			} else {

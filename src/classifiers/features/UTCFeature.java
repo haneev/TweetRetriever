@@ -1,7 +1,10 @@
 package classifiers.features;
 
+import org.json.JSONObject;
+
 import classifiers.BayesDocument;
 import classifiers.BayesFeature;
+import tweet.TweetDocument;
 
 public class UTCFeature extends BayesFeature {
 	
@@ -11,7 +14,13 @@ public class UTCFeature extends BayesFeature {
 
 	@Override
 	public String getValue(BayesDocument doc) {
-		return doc.getJson().getJSONObject("user").optString("utc_offset", null);
+		
+		if (doc instanceof TweetDocument) {
+			return ((TweetDocument) doc).getTweet().getUTCTimeZone();
+		}
+		
+		JSONObject user = doc.getJson().optJSONObject("user");
+		return user == null ? null : user.optString("utc_offset", null);
 	}	
 	
 }

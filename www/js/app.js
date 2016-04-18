@@ -129,7 +129,7 @@ app.controller("FormController", function ($scope, $http, $rootScope, ServerComm
 	$scope.startApp = function () {
 		
 		if(!$scope.start.$invalid) {
-			var data = angular.extend({top:10,training:500}, $scope.data);
+			var data = angular.extend({top:10,training:2500}, $scope.data);
 			ServerCommand.start(data).success(function () {
 				$rootScope.settings = data;
 				$scope.$emit("status", 'starting');				
